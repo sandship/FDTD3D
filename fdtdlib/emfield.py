@@ -28,7 +28,7 @@ class EMfield(object):
     def load_field(self):
         return None
 
-    def update_field(self):
+    def update_field(self, N=1):
         return None
 
     def calc_scatterfield(self):
@@ -48,4 +48,11 @@ class EMfield(object):
     def calc_phase(self):
         self.phase = 0
         return None
+    
+    # into pickle
+    def save_state():
+        return None
 
+    # from pickle
+    def load_state():
+        return None
