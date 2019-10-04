@@ -10,8 +10,8 @@ class EMfield(object):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, param):
-        self.param = param
+    def __init__(self, InitializedParameter):
+        self.param = InitializedParameter
 
         self.set_parameter = self.param.set_parameter
         self.general_parameter = self.param.general_parameter
@@ -49,10 +49,3 @@ class EMfield(object):
         self.phase = 0
         return None
     
-    # into pickle
-    def save_state():
-        return None
-
-    # from pickle
-    def load_state():
-        return None
