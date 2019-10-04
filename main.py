@@ -2,9 +2,9 @@ from fdtdlib import emfield
 from fdtdlib import init_param
 from fdtdlib import boundary
 
+import sys
 import time
 import dill
-import sys
 
 from datetime import datetime
 import logging
@@ -33,10 +33,9 @@ def main():
     else:
         print("You must input subcommand")
 
-
     # do computation
-    efield.update_field()
-    hfield.update_field()
+    efield.update_field(boundary.Boundary())
+    hfield.update_field(boundary.Boundary())
 
     # result
     efield.calc_norm()
