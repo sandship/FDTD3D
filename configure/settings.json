@@ -1,15 +1,26 @@
 {
-    "config" : {
-        "size" : {
-            "x" : 100,
-            "y" : 100,
-            "z" : 100
-        }
-    },
     "parameter" : {
+        "set" : {
+            "mergin" : {
+                "x" : 10,
+                "y" : 10,
+                "z" : 10
+            },
+            "pml_thick" : {
+                "x" : 8,
+                "y" : 8,
+                "z" : 8
+            }
+        },
         "general" : {
             "pi" : 3.1415926535,
             "c" : 2.9999065e+8
+        }
+    },
+    "model" : {
+        "path" : "./asset/model/testmodel.dat",
+        "property" : {
+            "input" : "./asset/properties/6_78MHz_human_tissue.dat"
         }
     }
 }

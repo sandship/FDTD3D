@@ -1,0 +1,23 @@
+{
+    "0" : {
+        "name" : "Air",
+        "epsr" : 1.0,
+        "mur" : 1.0,
+        "sigma" : 0.0,
+        "rho" : 1.0
+    },
+    "1" : {
+        "name" : "0.04mol/L Saline",
+        "epsr" : 77.9,
+        "mur" : 1.0,
+        "sigma" : 0.408,
+        "rho" : 1.008e+3
+    },
+    "2" : {
+        "name" : "Muscle",
+        "epsr" : 156,
+        "mur" : 1.0,
+        "sigma" : 0.408,
+        "rho" : 1.008e+3
+    }
+}
