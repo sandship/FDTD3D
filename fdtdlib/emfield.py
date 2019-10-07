@@ -1,7 +1,6 @@
 import numpy as np
 
-
-class EMfield(object):
+class Field(object):
     """[summary]
     
     Arguments:
@@ -28,15 +27,6 @@ class EMfield(object):
     def load_field(self):
         return None
 
-    def update_field(self, N=1):
-        return None
-
-    def calc_scatterfield(self):
-        return None
-
-    def calc_totalfield(self):
-        return None
-
     def calc_norm(self):
         self.norm = np.sqrt(
             self.Xaxis ** 2 +
@@ -48,4 +38,31 @@ class EMfield(object):
     def calc_phase(self):
         self.phase = 0
         return None
-    
+
+
+class Efield(Field):
+    """
+    """
+    def __init__(self, InitializedParameter):
+        super().__init__(InitializedParameter)
+        return None
+
+    def update_field(self, N=1):
+        return None
+
+    def calc_scatterfield(self):
+        return None
+
+    def calc_totalfield(self):
+        return None
+
+
+class Hfield(Field):
+    """
+    """
+    def __init__(self, InitializedParameter):
+        super().__init__(InitializedParameter)
+        return None
+
+    def update_field(self, N=1):
+        return None
