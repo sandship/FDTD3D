@@ -15,13 +15,13 @@ class Field(object):
         self.set_parameter = self.param.set_parameter
         self.general_parameter = self.param.general_parameter
 
-        self.Xaxis = self.__init_field()
-        self.Yaxis = self.__init_field()
-        self.Zaxis = self.__init_field()
+        self.Xaxis = self.init_field()
+        self.Yaxis = self.init_field()
+        self.Zaxis = self.init_field()
 
         return None
 
-    def __init_field(self):
+    def init_field(self):
         return np.zeros(shape=(self.param.model_size["x"] + 1, self.param.model_size["y"] + 1, self.param.model_size["z"] + 1))
 
     def load_field(self):
