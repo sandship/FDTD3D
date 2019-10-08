@@ -38,15 +38,16 @@ class InitialzeSpaceParameter(object):
     def calc_parameter(self):
         self.dr = self.set_parameter["descrete"]
         self.c = self.general_parameter["c"]
-        self.dt = 0.99 / (self.c * np.sqrt(3.0) * self.dr)
+        self.dt = 0.99 * self.dr / (self.c * np.sqrt(3.0))
 
         self.mu = self.general_parameter["mu"]
         self.eps = self.general_parameter["eps"]
         self.sigma = self.general_parameter["sigma"]
         self.rho = self.general_parameter["rho"]
 
-        self.ce = self.dt * self.eps / self.dr
-        self.ch = self.dt * self.mu / self.dr
+        self.ce = self.dt /(self.dr * self.eps)
+        self.ch = self.dt /(self.dr * self.mu)
+
+        self.freq = self.set_parameter["freq"]
 
         return None
-

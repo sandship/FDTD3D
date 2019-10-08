@@ -39,7 +39,6 @@ def main():
     efield.calc_norm()
     efield.calc_phase()
 
-    print(efield.norm[24, 24, 25])
 
     return None
 

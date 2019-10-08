@@ -1,6 +1,7 @@
 {
     "parameter" : {
         "set" : {
+            "freq" : 3.0e9,
             "descrete" : 2.0e-3, 
             "mergin" : {
                 "x" : 10,
