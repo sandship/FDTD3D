@@ -30,13 +30,16 @@ def main():
         print("!!! You must input subcommand")
 
     # do computation
-    for _ in range(2000):
+    for _ in range(200):
         efield.update_field(hfield)
         hfield.update_field(efield)
+
 
     # result
     efield.calc_norm()
     efield.calc_phase()
+
+    print(efield.norm[24, 24, 25])
 
     return None
 

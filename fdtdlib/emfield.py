@@ -10,6 +10,7 @@ class Field(object):
         [type] -- [description]
     """
     def __init__(self, InitializedParameter):
+        self.time = 0.0
         self.param = InitializedParameter
 
         self.set_parameter = self.param.set_parameter
@@ -54,20 +55,20 @@ class Efield(Field):
         return None
 
     def update_field(self, Hfield):
-        self.Xaxis = self.Xaxis + \
-                    self.param.ce * (
+        self.time += self.param.dt / 2.0
+        self.test_feed()
+        
+        self.Xaxis += self.param.ce * (
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, (0, 1, 0))) - 
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, (0, 0, 1)))
                     )
 
-        self.Yaxis = self.Yaxis + \
-                    self.param.ce * (
+        self.Yaxis += self.param.ce * (
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 0, 1))) - 
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, (1, 0, 0)))
                     )
 
-        self.Zaxis = self.Zaxis + \
-                    self.param.ce * (
+        self.Zaxis += self.param.ce * (
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, (1, 0, 0))) - 
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 1, 0)))
                     )
@@ -80,6 +81,9 @@ class Efield(Field):
     def calc_totalfield(self):
         return None
 
+    def test_feed(self):
+        self.Xaxis[25, 25, 25] = np.sin(2 * 3.1415926 * 3.0e10 * self.time)
+        return None
 
 class Hfield(Field):
     """[summary]
@@ -95,20 +99,19 @@ class Hfield(Field):
         return None
 
     def update_field(self, Efield):
-        self.Xaxis = self.Xaxis + \
-                    self.param.ch * (
+        self.time += self.param.dt / 2.0
+
+        self.Xaxis += self.param.ch * (
                         (Efield.Zaxis - np.roll(Efield.Zaxis, (0, -1, 0))) - 
                         (Efield.Yaxis - np.roll(Efield.Yaxis, (0, 0, -1)))
                     )
 
-        self.Yaxis = self.Yaxis + \
-                    self.param.ch * (
+        self.Yaxis += self.param.ch * (
                         (Efield.Xaxis - np.roll(Efield.Xaxis, (0, 0, -1))) - 
                         (Efield.Zaxis - np.roll(Efield.Zaxis, (-1, 0, 0)))
                     )
 
-        self.Zaxis = self.Zaxis + \
-                    self.param.ch * (
+        self.Zaxis += self.param.ch * (
                         (Efield.Yaxis - np.roll(Efield.Yaxis, (-1, 0, 0))) - 
                         (Efield.Xaxis - np.roll(Efield.Xaxis, (0, -1, 0)))
                     )

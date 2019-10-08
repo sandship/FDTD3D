@@ -23,7 +23,6 @@ class InitialzeSpaceParameter(object):
             "z" : np.max(self.model[:, 2])
         }
 
-        self.__load_params()
         self.calc_parameter()
 
         return None
@@ -36,14 +35,11 @@ class InitialzeSpaceParameter(object):
         self.model = np.array(lines)
         return None
 
-    def __load_params(self):
+    def calc_parameter(self):
         self.dr = self.set_parameter["descrete"]
         self.c = self.general_parameter["c"]
         self.dt = 0.99 / (self.c * np.sqrt(3.0) * self.dr)
-        
-        return None
 
-    def calc_parameter(self):
         self.mu = self.general_parameter["mu"]
         self.eps = self.general_parameter["eps"]
         self.sigma = self.general_parameter["sigma"]
