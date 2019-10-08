@@ -17,7 +17,6 @@ class InitialzeSpaceParameter(object):
         self.general_parameter = myutil.load_config(config_path)["parameter"]["general"]
 
         self.__load_model(self.setting["model"]["path"])
-
         self.model_size = {
             "x" : np.max(self.model[:, 0]),
             "y" : np.max(self.model[:, 1]),
@@ -37,10 +36,18 @@ class InitialzeSpaceParameter(object):
         return None
 
     def calc_parameter(self):
-        self.mu = self.model.copy()
-        self.eps = self.model.copy()
-        self.sigma = self.model.copy()
-        self.rho = self.model.copy()
+        self.dr = self.set_parameter["descrete"]
+        self.c = self.general_parameter["c"]
+        self.dt = 0.99 * self.dr / (self.c * np.sqrt(3.0))
+
+        self.mu = self.general_parameter["mu"]
+        self.eps = self.general_parameter["eps"]
+        self.sigma = self.general_parameter["sigma"]
+        self.rho = self.general_parameter["rho"]
+
+        self.ce = self.dt /(self.dr * self.eps)
+        self.ch = self.dt /(self.dr * self.mu)
+
+        self.freq = self.set_parameter["freq"]
 
         return None
-
