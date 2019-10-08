@@ -6,9 +6,6 @@ import sys
 import time
 import dill
 
-from datetime import datetime
-import logging
-
 def main():
     # load model and initialize field
 
@@ -33,16 +30,17 @@ def main():
         print("!!! You must input subcommand")
 
     # do computation
-    efield.update_field(boundary.Boundary())
-    hfield.update_field(boundary.Boundary())
+    for _ in range(2000):
+        efield.update_field(hfield)
+        hfield.update_field(efield)
 
     # result
     efield.calc_norm()
     efield.calc_phase()
 
-    #print(efield.norm)
-
     return None
+
+
 
 
 if __name__ == "__main__":
