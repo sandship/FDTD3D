@@ -1,5 +1,6 @@
 import numpy as np
-
+from scipy.ndimage.interpolation import shift
+# FIX: in update_field, cannot use 'np.roll', because roll method does not support 3d-array, maybe. 
 class Field(object):
     """[summary]
     
@@ -11,6 +12,7 @@ class Field(object):
     """
     def __init__(self, InitializedParameter):
         self.time = 0.0
+        self.step = 0
         self.param = InitializedParameter
 
         self.set_parameter = self.param.set_parameter
@@ -55,21 +57,23 @@ class Efield(Field):
         return None
 
     def update_field(self, Hfield):
+        self.Xaxis[25, 25, 25] = np.sin(2.0 * 3.14159265 * self.param.freq * self.time)
         self.time = Hfield.time + self.param.dt /2.0
+        self.step = Hfield.step + 1/2
 
         self.Xaxis += self.param.ce * (
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, (0, 1, 0))) - 
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, (0, 0, 1)))
+                        (Hfield.Zaxis - shift(Hfield.Zaxis, shift=(0, 1, 0))) - 
+                        (Hfield.Yaxis - shift(Hfield.Yaxis, shift=(0, 0, 1)))
                     )
 
         self.Yaxis += self.param.ce * (
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 0, 1))) - 
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, (1, 0, 0)))
+                        (Hfield.Xaxis - shift(Hfield.Xaxis, shift=(0, 0, 1))) - 
+                        (Hfield.Zaxis - shift(Hfield.Zaxis, shift=(1, 0, 0)))
                     )
 
         self.Zaxis += self.param.ce * (
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, (1, 0, 0))) - 
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 1, 0)))
+                        (Hfield.Yaxis - shift(Hfield.Yaxis, shift=(1, 0, 0))) - 
+                        (Hfield.Xaxis - shift(Hfield.Xaxis, shift=(0, 1, 0)))
                     )
 
         print(self.Xaxis[25, 25, 25], self.Yaxis[25, 25, 25], self.Zaxis[25, 25, 25])
@@ -98,21 +102,20 @@ class Hfield(Field):
     def update_field(self, Efield):
         Efield.Xaxis[25, 25, 25] = np.sin(2.0 * 3.14159265 * self.param.freq * self.time)
         self.time = Efield.time + self.param.dt /2.0
-        
 
         self.Xaxis += self.param.ch * (
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, (0, 1, 0))) - 
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, (0, 0, 1)))
+                        (Efield.Zaxis - shift(Efield.Zaxis, shift=(0, -1, 0))) - 
+                        (Efield.Yaxis - shift(Efield.Yaxis, shift=(0, 0, -1)))
                     )
 
         self.Yaxis += self.param.ch * (
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, (0, 0, 1))) - 
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, (1, 0, 0)))
+                        (Efield.Xaxis - shift(Efield.Xaxis, shift=(0, 0, -1))) - 
+                        (Efield.Zaxis - shift(Efield.Zaxis, shift=(-1, 0, 0)))
                     )
 
         self.Zaxis += self.param.ch * (
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, (1, 0, 0))) - 
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, (0, 1, 0)))
+                        (Efield.Yaxis - shift(Efield.Yaxis, shift=(-1, 0, 0))) - 
+                        (Efield.Xaxis - shift(Efield.Xaxis, shift=(0, -1, 0)))
                     )
 
 

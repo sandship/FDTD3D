@@ -33,8 +33,7 @@ def main():
     for _ in range(200):
         efield.update_field(hfield)
         hfield.update_field(efield)
-
-
+        
     # result
     efield.calc_norm()
     efield.calc_phase()
