@@ -33,11 +33,14 @@ class InitialzeSpaceParameter(object):
             lines = fh.readlines()
         lines = [[int(element) for element in line.split()] for line in lines]
         arr = self.transform_tidy_3darray(np.array(lines), to_form="3d-array")
-        
-        return self.expand_field(arr, expand=self.__calc_mergin())
+        arr = self.expand_field(arr, expand=self.__calc_mergin())
+        return arr
 
     def expand_field(self, arr, expand={}):
-        return arr
+        rarr = np.zeros((
+            arr.shape[0] + 2 * expand["x"], arr.shape[1] + 2 * expand["y"], arr.shape[2] + 2 * expand["z"]
+        ))
+        return rarr
 
     def __calc_mergin(self):
         total_mergin = {}
@@ -60,9 +63,6 @@ class InitialzeSpaceParameter(object):
 
         return None
     
-    def set_pml(self):
-        return None
-
     def load_tissue_index(self, path_):
         self.tissues = myutil.load_config(path_)
         return None
@@ -89,7 +89,6 @@ class InitialzeSpaceParameter(object):
         self.eps *= self.general_parameter["eps0"]
 
         return None
-    
 
     def transform_tidy_3darray(self, raw_data, to_form="3d-array"):
         if to_form == "3d-array":
@@ -108,8 +107,11 @@ class InitialzeSpaceParameter(object):
         elif to_form == "tidy":
             darray = raw_data.copy()
             darray_size = darray.shape
-
-            ###
+            # TODO:
+            # add inverse transform darray to tidy
 
         else:
             raise ArgumentError
+
+    def set_pml(self):
+        return None
