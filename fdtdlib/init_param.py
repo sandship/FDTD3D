@@ -32,22 +32,32 @@ class InitialzeSpaceParameter(object):
         with open(path_, "r") as fh:
             lines = fh.readlines()
         lines = [[int(element) for element in line.split()] for line in lines]
+
         arr = self.transform_tidy_3darray(np.array(lines), to_form="3d-array")
         arr = self.expand_field(arr, expand=self.__calc_mergin())
+
         return arr
 
     def expand_field(self, arr, expand={}):
-        # FIXME:
-        # this method is not completed.
         rarr = np.zeros((
-            arr.shape[0] + 2 * expand["x"], arr.shape[1] + 2 * expand["y"], arr.shape[2] + 2 * expand["z"]
+            arr.shape[0] + 2 * expand["x"], 
+            arr.shape[1] + 2 * expand["y"], 
+            arr.shape[2] + 2 * expand["z"]
         ))
+        
+        rarr[
+            expand["x"]:-expand["x"], 
+            expand["y"]:-expand["y"], 
+            expand["z"]:-expand["z"]
+        ] = arr
+        
         return rarr
 
     def __calc_mergin(self):
         total_mergin = {}
         for k in self.set_parameter["mergin"].keys():
             total_mergin[k] = self.set_parameter["mergin"][k] + self.set_parameter["pml_thick"][k]
+
         return total_mergin
     
     def calc_parameter(self):
@@ -67,6 +77,7 @@ class InitialzeSpaceParameter(object):
     
     def load_tissue_index(self, path_):
         self.tissues = myutil.load_config(path_)
+
         return None
 
     def set_tissue_param(self):
@@ -100,7 +111,6 @@ class InitialzeSpaceParameter(object):
                 "y" : np.max(tidy[:, 1]) - np.min(tidy[:, 1]) + 1,
                 "z" : np.max(tidy[:, 2]) - np.min(tidy[:, 2]) + 1
             }
-
             darray = np.zeros(shape=(tidy_size["x"], tidy_size["y"], tidy_size["z"]))
             for item in tidy:
                 darray[item[0], item[1], item[2]] = item[3]
@@ -109,11 +119,20 @@ class InitialzeSpaceParameter(object):
         elif to_form == "tidy":
             darray = raw_data.copy()
             darray_size = darray.shape
-            # TODO:
-            # add inverse transform darray to tidy
-
+            tidy = np.zeros((darray_size[0]*darray_size[1]*darray_size[2], 4))
+            
+            cnt = 0
+            for i in range(darray_size[0]):
+                for j in range(darray_size[1]):
+                    for k in range(darray_size[2]):
+                        tidy[cnt, 0] = i
+                        tidy[cnt, 1] = j
+                        tidy[cnt, 2] = k
+                        tidy[cnt, 3] = darray[i, j, k]
+                        cnt += 1
+            return tidy
         else:
-            raise ArgumentError
+            raise AttributeError
 
     def set_pml(self):
         return None

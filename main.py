@@ -1,6 +1,9 @@
 from fdtdlib import emfield
 from fdtdlib import init_param
 from fdtdlib import boundary
+from fdtdlib import visualizer
+
+from tqdm import tqdm
 
 def main():
     # load model and initialize field
@@ -10,17 +13,21 @@ def main():
     hfield = emfield.Hfield(param)
 
     # do computation
-    for _ in range(4000):
+    for _ in tqdm(range(502)):
         efield.update_field(hfield)
         hfield.update_field(efield)
+        
+        if _ % 10 == 1:
+            # result
+            efield.calc_norm()
+            efield.calc_phase()
 
-    # result
-    efield.calc_norm()
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            sns.heatmap(efield.norm[46, :, :], cmap="Reds")
+            plt.savefig('test_{}.png'.format(_))
+            plt.close('all')
 
-    for _ in efield.norm[:, 25, 25]:
-        print(_)
-
-    efield.calc_phase()
     return None
 
 
