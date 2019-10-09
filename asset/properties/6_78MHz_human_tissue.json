@@ -4,13 +4,13 @@
         "epsr" : 1.0,
         "mur" : 1.0,
         "sigma" : 0.0,
-        "rho" : 1.0
+        "rho" : 1.25
     },
     "1" : {
         "name" : "0.04mol/L Saline",
         "epsr" : 77.9,
         "mur" : 1.0,
-        "sigma" : 0.408,
+        "sigma" : 4.08,
         "rho" : 1.008e+3
     },
     "2" : {
