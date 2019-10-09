@@ -37,6 +37,8 @@ class InitialzeSpaceParameter(object):
         return arr
 
     def expand_field(self, arr, expand={}):
+        # FIXME:
+        # this method is not completed.
         rarr = np.zeros((
             arr.shape[0] + 2 * expand["x"], arr.shape[1] + 2 * expand["y"], arr.shape[2] + 2 * expand["z"]
         ))
