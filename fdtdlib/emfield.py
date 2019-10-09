@@ -23,7 +23,9 @@ class Field(object):
         return None
 
     def init_field(self):
-        return np.zeros(shape=(self.param.model_size["x"] + 1, self.param.model_size["y"] + 1, self.param.model_size["z"] + 1))
+        return np.zeros(
+            shape=(self.param.model_size["x"], self.param.model_size["y"], self.param.model_size["z"])
+        )
 
     def load_field(self):
         return None
@@ -37,7 +39,6 @@ class Field(object):
         return None
 
     def calc_phase(self):
-        self.phase = 0
         return None
 
 
@@ -57,17 +58,17 @@ class Efield(Field):
     def update_field(self, Hfield):
         self.time = Hfield.time + self.param.dt /2.0
 
-        self.Xaxis += self.param.ce * (
+        self.Xaxis = self.Xaxis * self.param.ce + self.param.de * (
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=1)) - 
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=2))
                     )
 
-        self.Yaxis += self.param.ce * (
+        self.Yaxis = self.Yaxis * self.param.ce + self.param.de * (
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=2)) - 
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=0))
                     )
 
-        self.Zaxis += self.param.ce * (
+        self.Zaxis = self.Zaxis * self.param.ce + self.param.de * (
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=0)) - 
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=1))
                     )
@@ -93,19 +94,20 @@ class Hfield(Field):
         return None
 
     def update_field(self, Efield):
+        Efield.Xaxis[40, 25, 25] = np.sin(2.0 * 3.14159265 * 3.0e9 * self.time)
         self.time = Efield.time + self.param.dt /2.0
 
-        self.Xaxis += self.param.ch * (
+        self.Xaxis += self.param.dh * (
                         (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=1)) - 
                         (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=2))
                     )
 
-        self.Yaxis += self.param.ch * (
+        self.Yaxis += self.param.dh * (
                         (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=2)) - 
                         (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=0))
                     )
 
-        self.Zaxis += self.param.ch * (
+        self.Zaxis += self.param.dh * (
                         (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=0)) - 
                         (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=1))
                     )

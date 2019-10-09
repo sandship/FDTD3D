@@ -9,13 +9,7 @@ class PmlBoundary(Boundary):
         super().__init__()
         return None
     
-    
-        return None
-
 class PeriodicBoundary(Boundary):
     def __init__(self):
         super().__init__()
-        return None
-
-
         return None

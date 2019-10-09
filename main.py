@@ -9,12 +9,17 @@ def main():
     hfield = emfield.Hfield(param)
 
     # do computation
-    for _ in range(200):
+    for _ in range(4000):
         efield.update_field(hfield)
         hfield.update_field(efield)
 
+
     # result
     efield.calc_norm()
+
+    for _ in efield.norm[:, 25, 25]:
+        print(_)
+
     efield.calc_phase()
     return None
 
