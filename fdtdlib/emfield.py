@@ -58,22 +58,19 @@ class Efield(Field):
         self.time = Hfield.time + self.param.dt /2.0
 
         self.Xaxis += self.param.ce * (
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, (0, 1, 0))) - 
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, (0, 0, 1)))
+                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=1)) - 
+                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=2))
                     )
 
         self.Yaxis += self.param.ce * (
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 0, 1))) - 
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, (1, 0, 0)))
+                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=2)) - 
+                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=0))
                     )
 
         self.Zaxis += self.param.ce * (
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, (1, 0, 0))) - 
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, (0, 1, 0)))
+                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=0)) - 
+                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=1))
                     )
-
-        print(self.Xaxis[25, 25, 25], self.Yaxis[25, 25, 25], self.Zaxis[25, 25, 25])
-
         return None
 
     def calc_scatterfield(self):
@@ -96,24 +93,20 @@ class Hfield(Field):
         return None
 
     def update_field(self, Efield):
-        Efield.Xaxis[25, 25, 25] = np.sin(2.0 * 3.14159265 * self.param.freq * self.time)
         self.time = Efield.time + self.param.dt /2.0
-        
 
         self.Xaxis += self.param.ch * (
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, (0, 1, 0))) - 
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, (0, 0, 1)))
+                        (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=1)) - 
+                        (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=2))
                     )
 
         self.Yaxis += self.param.ch * (
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, (0, 0, 1))) - 
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, (1, 0, 0)))
+                        (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=2)) - 
+                        (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=0))
                     )
 
         self.Zaxis += self.param.ch * (
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, (1, 0, 0))) - 
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, (0, 1, 0)))
+                        (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=0)) - 
+                        (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=1))
                     )
-
-
         return None
