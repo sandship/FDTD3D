@@ -4,10 +4,11 @@ from fdtdlib import boundary
 
 from memory_profiler import profile
 
-@profile
+
 def main():
     # load model and initialize field
     param = init_param.InitialzeSpaceParameter()
+
     efield = emfield.Efield(param)
     hfield = emfield.Hfield(param)
 
