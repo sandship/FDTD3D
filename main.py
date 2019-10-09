@@ -2,9 +2,6 @@ from fdtdlib import emfield
 from fdtdlib import init_param
 from fdtdlib import boundary
 
-from memory_profiler import profile
-
-
 def main():
     # load model and initialize field
     param = init_param.InitialzeSpaceParameter()

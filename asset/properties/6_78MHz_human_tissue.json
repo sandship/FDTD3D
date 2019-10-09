@@ -10,7 +10,7 @@
         "name" : "0.04mol/L Saline",
         "epsr" : 77.9,
         "mur" : 1.0,
-        "sigma" : 0.408,
+        "sigma" : 4.08,
         "rho" : 1.008e+3
     },
     "2" : {
