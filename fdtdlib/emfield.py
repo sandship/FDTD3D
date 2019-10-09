@@ -1,4 +1,5 @@
 import numpy as np
+# import cupy as np
 
 class Field(object):
     """[summary]
@@ -58,17 +59,17 @@ class Efield(Field):
     def update_field(self, Hfield):
         self.time = Hfield.time + self.param.dt /2.0
 
-        self.Xaxis = self.Xaxis * self.param.ce + self.param.de * (
+        self.Xaxis = self.param.ce * self.Xaxis + self.param.de * (
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=1)) - 
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=2))
                     )
 
-        self.Yaxis = self.Yaxis * self.param.ce + self.param.de * (
+        self.Yaxis =  self.param.ce * self.Yaxis + self.param.de * (
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=2)) - 
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=0))
                     )
 
-        self.Zaxis = self.Zaxis * self.param.ce + self.param.de * (
+        self.Zaxis = self.param.ce * self.Zaxis + self.param.de * (
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=0)) - 
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=1))
                     )

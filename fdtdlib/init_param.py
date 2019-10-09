@@ -26,15 +26,15 @@ class InitialzeSpaceParameter(object):
             lines = fh.readlines()
         
         lines = [[int(element) for element in line.split()] for line in lines]
-        self.model = np.array(lines)
+        self.model_id = np.array(lines)
 
         self.model_size = {
-            "x" : np.max(self.model[:, 0]) + 1,
-            "y" : np.max(self.model[:, 1]) + 1,
-            "z" : np.max(self.model[:, 2]) + 1
+            "x" : np.max(self.model_id[:, 0]) + 1,
+            "y" : np.max(self.model_id[:, 1]) + 1,
+            "z" : np.max(self.model_id[:, 2]) + 1
         }
         
-        self.model = myutil.transform_tidy_3darray(self.model, to_form="3d-array")
+        self.model_id = myutil.transform_tidy_3darray(self.model_id, to_form="3d-array")
 
         return None
 
@@ -53,27 +53,30 @@ class InitialzeSpaceParameter(object):
 
         return None
     
+    def load_tissue_index(self, path_):
+        self.tissues = myutil.load_config(path_)
+        return None
+
     def set_tissue_param(self):
-        self._load_tissue_index(self.setting["model"]["property"])
+        """
+        """
+        def _trans_tissue_param(x, key=""):
+            return self.tissues[str(int(x))][key]
+
+        def _trans_tissue_id_to_value(arr, key):
+            __func = np.vectorize(_trans_tissue_param)
+            return __func(arr.ravel(), key=key).reshape(arr.shape[0], arr.shape[1], arr.shape[2])
         
-        self.name =  self._set_field_update_parameter(self.model.copy(), key="name")
-        self.eps =   self._set_field_update_parameter(self.model.copy(), key="epsr")
-        self.mu =    self._set_field_update_parameter(self.model.copy(), key="mur")
-        self.sigma = self._set_field_update_parameter(self.model.copy(), key="sigma")
-        self.rho =   self._set_field_update_parameter(self.model.copy(), key="rho")
+        self.load_tissue_index(self.setting["model"]["property"])
+        
+        self.name =  _trans_tissue_id_to_value(self.model_id, key="name")
+        self.eps =   _trans_tissue_id_to_value(self.model_id, key="epsr")
+        self.mu =    _trans_tissue_id_to_value(self.model_id, key="mur")
+        self.sigma = _trans_tissue_id_to_value(self.model_id, key="sigma")
+        self.rho =   _trans_tissue_id_to_value(self.model_id, key="rho")
 
         self.mu *= self.general_parameter["mu0"]
         self.eps *= self.general_parameter["eps0"]
 
         return None
     
-    def _load_tissue_index(self, path_):
-        self.tissues = myutil.load_config(path_)
-        return None
-
-    def _translate_tissue_param(self, x, key=""):
-        return self.tissues[str(int(x))][key]
-
-    def _set_field_update_parameter(self, arr, key):
-        __func = np.vectorize(self._translate_tissue_param)
-        return __func(arr.ravel(), key=key).reshape(arr.shape[0], arr.shape[1], arr.shape[2])

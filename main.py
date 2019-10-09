@@ -2,6 +2,9 @@ from fdtdlib import emfield
 from fdtdlib import init_param
 from fdtdlib import boundary
 
+from memory_profiler import profile
+
+@profile
 def main():
     # load model and initialize field
     param = init_param.InitialzeSpaceParameter()
@@ -12,7 +15,6 @@ def main():
     for _ in range(4000):
         efield.update_field(hfield)
         hfield.update_field(efield)
-
 
     # result
     efield.calc_norm()
