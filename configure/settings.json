@@ -1,17 +1,15 @@
 {
     "parameter" : {
         "set" : {
-            "freq" : 3.0e9,
-            "descrete" : 2.0e-2, 
+            "freq" : 5.0e9,
+            "descrete" : 2.0e-3, 
+            "pml_thick" : 12,
+            "pml_dimension" : 2,
+            "pml_reflection_coefficient" : 1.0e-6,
             "mergin" : {
                 "x" : 10,
                 "y" : 10,
                 "z" : 10
-            },
-            "pml_thick" : {
-                "x" : 12,
-                "y" : 12,
-                "z" : 12
             }
         },
         "general" : {
