@@ -14,9 +14,6 @@ def main():
     efield_sub = emfield.Efield(param, shift_phase=3.14159265/2.0)
     hfield_sub = emfield.Hfield(param)
 
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    with open('./output/time_line.dat', "a+") as f:
         # do computation
         for _ in tqdm(range(5002)):
             efield.update_field(hfield)
@@ -33,10 +30,6 @@ def main():
                 sns.heatmap(efield.norm[:, 50, :], cmap="Reds")
                 plt.savefig('./output/map_{}.png'.format(_))
                 plt.close('all')
-            
-            f.write('{},{},{}\n'.format(_, efield.Xaxis[46, 46, 46], efield_sub.Xaxis[46, 46, 46]))
-
-
 
     return None
 
