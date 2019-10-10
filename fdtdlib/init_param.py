@@ -45,9 +45,9 @@ class InitialzeSpaceParameter(object):
         ))
         
         rarr[
-            expand["x"]:-expand["x"], 
-            expand["y"]:-expand["y"], 
-            expand["z"]:-expand["z"]
+            expand["x"] : -expand["x"], 
+            expand["y"] : -expand["y"], 
+            expand["z"] : -expand["z"]
         ] = arr
         
         return rarr

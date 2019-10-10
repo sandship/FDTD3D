@@ -1,6 +1,5 @@
 from fdtdlib import emfield
 from fdtdlib import init_param
-from fdtdlib import boundary
 from fdtdlib import visualizer
 
 from tqdm import tqdm

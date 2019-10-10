@@ -85,10 +85,10 @@ class Efield(Field):
 
 class Hfield(Field):
     """[summary]
-    
+
     Arguments:
         Field {[type]} -- [description]
-    
+
     Returns:
         [type] -- [description]
     """
