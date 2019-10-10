@@ -17,16 +17,23 @@ def main():
         efield.update_field(hfield)
         hfield.update_field(efield)
         
-        if _ % 10 == 1:
-            # result
-            efield.calc_norm()
-            efield.calc_phase()
+        with open('./output/dot_tl.log', "a+") as f:
+            if _ % 10 == 1:
+                # result
+                efield.calc_norm()
+                efield.calc_phase()
 
-            import matplotlib.pyplot as plt
-            import seaborn as sns
-            sns.heatmap(efield.norm[46, :, :], cmap="Reds")
-            plt.savefig('./output/test_{}.png'.format(_))
-            plt.close('all')
+                import matplotlib.pyplot as plt
+                import seaborn as sns
+                sns.heatmap(efield.norm[50, :, :], cmap="Reds", vmin=0, vmax=0.005)
+                plt.savefig('./output/suface_{}.png'.format(_))
+                plt.close('all')
+
+                plt.plot(efield.norm[46, 46, :])
+                plt.savefig('./output/line_{}.png'.format(_))
+                plt.close('all')
+
+        f.write("{},{},{}\n".format(str(efield.Xaxis[50, 50, 50]), str(efield.Yaxis[50, 50, 50]), str(efield.Zaxis[50, 50, 50])))
 
     return None
 

@@ -24,8 +24,6 @@ class InitialzeSpaceParameter(object):
         }
 
         self.calc_parameter()
-        
-        self.set_pml()
 
         return None
 
@@ -57,7 +55,7 @@ class InitialzeSpaceParameter(object):
     def __calc_mergin(self):
         total_mergin = {}
         for k in self.set_parameter["mergin"].keys():
-            total_mergin[k] = self.set_parameter["mergin"][k] + self.set_parameter["pml_thick"][k]
+            total_mergin[k] = self.set_parameter["mergin"][k] + self.set_parameter["pml_thick"]
 
         return total_mergin
     
@@ -68,6 +66,8 @@ class InitialzeSpaceParameter(object):
         self.c = self.general_parameter["c"]
         self.dt = 0.99 * self.dr / (self.c * np.sqrt(3.0))
         
+        self.set_pml()
+
         self.ce = (2.0 * self.eps - self.sigma * self.dt)/(2.0 * self.eps + self.sigma * self.dt)
         self.de = 2.0 * self.dt /((2.0 * self.eps * self.dr) + (self.sigma * self.dt * self.dr))
         self.dh = self.dt /(self.dr * self.mu)
@@ -136,4 +136,20 @@ class InitialzeSpaceParameter(object):
             raise AttributeError
 
     def set_pml(self):
+
+        pmlN = self.set_parameter["pml_thick"]
+        __M = self.set_parameter["pml_dimension"]
+        __R = self.set_parameter["pml_reflection_coefficient"]
+
+        for ln in range(pmlN):
+
+            self.sigma[ln : ln + 1, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[:, ln : ln + 1, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[:, :, ln : ln + 1] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[-(ln + 1) : -ln, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[:, -(ln + 1) : -ln, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[:, :, -(ln + 1) : -ln] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+
+            print(((__M + 1) * 6/(2 * pmlN * self.dr * 377)))
+
         return None
