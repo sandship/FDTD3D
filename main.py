@@ -20,6 +20,7 @@ from tqdm import tqdm
 # 09) 周期境界条件等の実装によりメタマテリアルの計算を可とする.
 # 10) 異方性媒質の計算を可とする.
 # 11) 機械学習による目的形状等の自動＋効率的な探索を可とする.
+# 12) 精度評価のためのMieの厳密解実装
 
 def main():
     # load model and initialize field
