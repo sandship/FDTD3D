@@ -1,11 +1,6 @@
 import numpy as np
-<<<<<<< HEAD
-from scipy.ndimage.interpolation import shift
-# FIX: in update_field, cannot use 'np.roll', because roll method does not support 3d-array, maybe. 
-=======
 # import cupy as np
 
->>>>>>> 3c663933c8922088371ad5317372c90716b0d5cd
 class Field(object):
     """[summary]
     
@@ -67,21 +62,6 @@ class Efield(Field):
         self.time = Hfield.time + self.param.dt /2.0
         self.step = Hfield.step + 1/2
 
-<<<<<<< HEAD
-        self.Xaxis += self.param.ce * (
-                        (Hfield.Zaxis - shift(Hfield.Zaxis, shift=(0, 1, 0))) - 
-                        (Hfield.Yaxis - shift(Hfield.Yaxis, shift=(0, 0, 1)))
-                    )
-
-        self.Yaxis += self.param.ce * (
-                        (Hfield.Xaxis - shift(Hfield.Xaxis, shift=(0, 0, 1))) - 
-                        (Hfield.Zaxis - shift(Hfield.Zaxis, shift=(1, 0, 0)))
-                    )
-
-        self.Zaxis += self.param.ce * (
-                        (Hfield.Yaxis - shift(Hfield.Yaxis, shift=(1, 0, 0))) - 
-                        (Hfield.Xaxis - shift(Hfield.Xaxis, shift=(0, 1, 0)))
-=======
         self.Xaxis = self.param.ce * self.Xaxis + self.param.de * (
                         (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=1)) - 
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=2))
@@ -95,7 +75,6 @@ class Efield(Field):
         self.Zaxis = self.param.ce * self.Zaxis + self.param.de * (
                         (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=0)) - 
                         (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=1))
->>>>>>> 3c663933c8922088371ad5317372c90716b0d5cd
                     )
         return None
 
@@ -122,21 +101,6 @@ class Hfield(Field):
         Efield.Xaxis[22, 46, 46] = np.sin(2.0 * 3.14159265 * 3.0e9 * self.time)
         self.time = Efield.time + self.param.dt /2.0
 
-<<<<<<< HEAD
-        self.Xaxis += self.param.ch * (
-                        (Efield.Zaxis - shift(Efield.Zaxis, shift=(0, -1, 0))) - 
-                        (Efield.Yaxis - shift(Efield.Yaxis, shift=(0, 0, -1)))
-                    )
-
-        self.Yaxis += self.param.ch * (
-                        (Efield.Xaxis - shift(Efield.Xaxis, shift=(0, 0, -1))) - 
-                        (Efield.Zaxis - shift(Efield.Zaxis, shift=(-1, 0, 0)))
-                    )
-
-        self.Zaxis += self.param.ch * (
-                        (Efield.Yaxis - shift(Efield.Yaxis, shift=(-1, 0, 0))) - 
-                        (Efield.Xaxis - shift(Efield.Xaxis, shift=(0, -1, 0)))
-=======
         self.Xaxis += self.param.dh * (
                         (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=1)) - 
                         (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=2))
@@ -150,6 +114,5 @@ class Hfield(Field):
         self.Zaxis += self.param.dh * (
                         (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=0)) - 
                         (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=1))
->>>>>>> 3c663933c8922088371ad5317372c90716b0d5cd
                     )
         return None

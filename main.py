@@ -17,12 +17,6 @@ def main():
         efield.update_field(hfield)
         hfield.update_field(efield)
         
-<<<<<<< HEAD
-    # result
-    efield.calc_norm()
-    efield.calc_phase()
-
-=======
         if _ % 10 == 1:
             # result
             efield.calc_norm()
@@ -33,7 +27,6 @@ def main():
             sns.heatmap(efield.norm[46, :, :], cmap="Reds")
             plt.savefig('test_{}.png'.format(_))
             plt.close('all')
->>>>>>> 3c663933c8922088371ad5317372c90716b0d5cd
 
     return None
 
