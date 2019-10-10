@@ -53,11 +53,13 @@ class Efield(Field):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, InitializedParameter):
+    def __init__(self, InitializedParameter, shift_phase=0.0):
+        self.shift_phase = shift_phase
         super().__init__(InitializedParameter)
         return None
 
     def update_field(self, Hfield):
+        self.Zaxis[32, 47, 47] = np.sin(2.0 * 3.14159265 * 3.0e9 * self.time + self.shift_phase)
         self.time = Hfield.time + self.param.dt /2.0
         self.step = Hfield.step + 1/2
 
@@ -92,12 +94,12 @@ class Hfield(Field):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, InitializedParameter):
+    def __init__(self, InitializedParameter, shift_phase=0.0):
+        self.shift_phase = shift_phase
         super().__init__(InitializedParameter)
         return None
 
     def update_field(self, Efield):
-        Efield.Zaxis[32, 47, 47] = np.sin(2.0 * 3.14159265 * 3.0e9 * self.time)
         self.time = Efield.time + self.param.dt /2.0
 
         self.Xaxis += self.param.dh * (
