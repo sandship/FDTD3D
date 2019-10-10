@@ -58,7 +58,6 @@ class Efield(Field):
         return None
 
     def update_field(self, Hfield):
-        self.Xaxis[25, 25, 25] = np.sin(2.0 * 3.14159265 * self.param.freq * self.time)
         self.time = Hfield.time + self.param.dt /2.0
         self.step = Hfield.step + 1/2
 

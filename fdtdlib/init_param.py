@@ -24,6 +24,7 @@ class InitialzeSpaceParameter(object):
         }
 
         self.calc_parameter()
+        
         self.set_pml()
 
         return None

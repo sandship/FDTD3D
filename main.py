@@ -25,7 +25,7 @@ def main():
             import matplotlib.pyplot as plt
             import seaborn as sns
             sns.heatmap(efield.norm[46, :, :], cmap="Reds")
-            plt.savefig('test_{}.png'.format(_))
+            plt.savefig('./output/test_{}.png'.format(_))
             plt.close('all')
 
     return None
