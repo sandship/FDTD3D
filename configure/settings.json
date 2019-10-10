@@ -1,7 +1,7 @@
 {
     "parameter" : {
         "set" : {
-            "freq" : 3.0e9,
+            "freq" : 5.0e9,
             "descrete" : 2.0e-3, 
             "pml_thick" : 12,
             "pml_dimension" : 2,
@@ -20,7 +20,7 @@
         }
     },
     "model" : {
-        "path" : "./asset/model/testair.dat",
+        "path" : "./asset/model/testmodel.dat",
         "property" : "./asset/properties/6_78MHz_human_tissue.json"
     }
 }
