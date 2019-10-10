@@ -13,12 +13,12 @@ def main():
     hfield = emfield.Hfield(param)
 
     # do computation
-    for _ in tqdm(range(502)):
+    for _ in tqdm(range(5002)):
         efield.update_field(hfield)
         hfield.update_field(efield)
         
         with open('./output/dot_tl.log', "a+") as f:
-            if _ % 10 == 1:
+            if _ % 100 == 1:
                 # result
                 efield.calc_norm()
                 efield.calc_phase()
@@ -33,7 +33,7 @@ def main():
                 plt.savefig('./output/line_{}.png'.format(_))
                 plt.close('all')
 
-        f.write("{},{},{}\n".format(str(efield.Xaxis[50, 50, 50]), str(efield.Yaxis[50, 50, 50]), str(efield.Zaxis[50, 50, 50])))
+            f.write("{},{},{}\n".format(str(efield.Xaxis[50, 50, 50]), str(efield.Yaxis[50, 50, 50]), str(efield.Zaxis[50, 50, 50])))
 
     return None
 
