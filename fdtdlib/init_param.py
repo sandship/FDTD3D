@@ -229,6 +229,7 @@ class InitialzeSpaceParameter(object):
             self.sigma[ln : ln + 1, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
             self.sigma[:, ln : ln + 1, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
             self.sigma[:, :, ln : ln + 1] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            
             self.sigma[-(ln + 1) : -ln, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
             self.sigma[:, -(ln + 1) : -ln, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
             self.sigma[:, :, -(ln + 1) : -ln] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
