@@ -1,5 +1,6 @@
 from fdtdlib import myutility as myutil
 import numpy as np
+import cupy as cp
 
 class InitialzeSpaceParameter(object):
     """This class is nitializer for parameters used in FDTD.
@@ -47,7 +48,7 @@ class InitialzeSpaceParameter(object):
             lines = fh.readlines()
         lines = [[int(element) for element in line.split()] for line in lines]
 
-        arr = self.transform_tidy_3darray(np.array(lines), to_form="3d-array")
+        arr = self.transform_tidy_3darray(cp.array(lines), to_form="3d-array")
         arr = self.expand_field(arr, expand=self.__expansion_num())
 
         return arr
@@ -71,11 +72,11 @@ class InitialzeSpaceParameter(object):
         if to_form == "3d-array":
             tidy = raw_data.copy()
             tidy_size = {
-                "x" : np.max(tidy[:, 0]) - np.min(tidy[:, 0]) + 1,
-                "y" : np.max(tidy[:, 1]) - np.min(tidy[:, 1]) + 1,
-                "z" : np.max(tidy[:, 2]) - np.min(tidy[:, 2]) + 1
+                "x" : int(cp.max(tidy[:, 0]) - cp.min(tidy[:, 0]) + 1),
+                "y" : int(cp.max(tidy[:, 1]) - cp.min(tidy[:, 1]) + 1),
+                "z" : int(cp.max(tidy[:, 2]) - cp.min(tidy[:, 2]) + 1)
             }
-            darray = np.zeros(shape=(tidy_size["x"], tidy_size["y"], tidy_size["z"]))
+            darray = cp.zeros(shape=(tidy_size["x"], tidy_size["y"], tidy_size["z"]))
             for item in tidy:
                 darray[item[0], item[1], item[2]] = item[3]
 
@@ -83,7 +84,7 @@ class InitialzeSpaceParameter(object):
         elif to_form == "tidy":
             darray = raw_data.copy()
             darray_size = darray.shape
-            tidy = np.zeros((darray_size[0]*darray_size[1]*darray_size[2], 4))
+            tidy = cp.zeros((darray_size[0]*darray_size[1]*darray_size[2], 4))
             
             cnt = 0
             for i in range(darray_size[0]):
@@ -112,7 +113,7 @@ class InitialzeSpaceParameter(object):
         Returns:
             np.ndarray -- expanded ndarray
         """
-        rarr = np.zeros((
+        rarr = cp.zeros((
             arr.shape[0] + 2 * expand["x"], 
             arr.shape[1] + 2 * expand["y"], 
             arr.shape[2] + 2 * expand["z"]
@@ -154,7 +155,9 @@ class InitialzeSpaceParameter(object):
 
         self.ce = (2.0 * self.eps - self.sigma * self.dt)/(2.0 * self.eps + self.sigma * self.dt)
         self.de = 2.0 * self.dt /((2.0 * self.eps * self.dr) + (self.sigma * self.dt * self.dr))
-        self.dh = self.dt /(self.dr * self.mu)
+
+        self.ch = (2.0 * self.mu - self.msigma * self.dt)/(2.0 * self.mu + self.msigma * self.dt)
+        self.dh = 2.0 * self.dt /((2.0 * self.mu * self.dr) + (self.msigma * self.dt * self.dr))
 
         return None
 
@@ -199,16 +202,18 @@ class InitialzeSpaceParameter(object):
                 """
                 return self.tissues[str(int(x))][key]
 
+            arr = cp.asnumpy(arr)
             __func = np.vectorize(_trans_tissue_param)
             return __func(arr.ravel(), key=key).reshape(arr.shape[0], arr.shape[1], arr.shape[2])
         
         self.load_tissue_index(self.setting["model"]["property"])
         
-        self.name =  _trans_tissue_id_to_value(model_id_array, key="name")
-        self.eps =   _trans_tissue_id_to_value(model_id_array, key="epsr")
-        self.mu =    _trans_tissue_id_to_value(model_id_array, key="mur")
-        self.sigma = _trans_tissue_id_to_value(model_id_array, key="sigma")
-        self.rho =   _trans_tissue_id_to_value(model_id_array, key="rho")
+        self.name =   _trans_tissue_id_to_value(model_id_array, key="name")
+        self.eps =    cp.asarray(_trans_tissue_id_to_value(model_id_array, key="epsr"))
+        self.mu =     cp.asarray(_trans_tissue_id_to_value(model_id_array, key="mur"))
+        self.sigma =  cp.asarray(_trans_tissue_id_to_value(model_id_array, key="sigma"))
+        self.msigma = cp.asarray(_trans_tissue_id_to_value(model_id_array, key="msigma"))
+        self.rho =    cp.asarray(_trans_tissue_id_to_value(model_id_array, key="rho"))
 
         self.mu *= self.general_parameter["mu0"]
         self.eps *= self.general_parameter["eps0"]
@@ -223,15 +228,23 @@ class InitialzeSpaceParameter(object):
         __R = self.set_parameter["pml_reflection_coefficient"]
 
         for ln in range(pmlN):
-            # TODO: 
-            # 右辺内の定数を変数で置き換える。
+            sigma_value = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * (-np.log(__R))/(2 * pmlN * self.dr * 120 * np.pi))
+            msigma_value = self.general_parameter["mu0"]/self.general_parameter["eps0"] * sigma_value
 
-            self.sigma[ln : ln + 1, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
-            self.sigma[:, ln : ln + 1, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
-            self.sigma[:, :, ln : ln + 1] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
-            
-            self.sigma[-(ln + 1) : -ln, :, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
-            self.sigma[:, -(ln + 1) : -ln, :] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
-            self.sigma[:, :, -(ln + 1) : -ln] = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * 6/(2 * pmlN * self.dr * 377))
+            self.sigma[ln : ln + 1, :, :] = sigma_value
+            self.sigma[:, ln : ln + 1, :] = sigma_value
+            self.sigma[:, :, ln : ln + 1] = sigma_value
+
+            self.sigma[-(ln + 1) : -ln, :, :] = sigma_value
+            self.sigma[:, -(ln + 1) : -ln, :] = sigma_value
+            self.sigma[:, :, -(ln + 1) : -ln] = sigma_value
+
+            self.msigma[ln : ln + 1, :, :] = msigma_value
+            self.msigma[:, ln : ln + 1, :] = msigma_value
+            self.msigma[:, :, ln : ln + 1] = msigma_value
+
+            self.msigma[-(ln + 1) : -ln, :, :] = msigma_value
+            self.msigma[:, -(ln + 1) : -ln, :] = msigma_value
+            self.msigma[:, :, -(ln + 1) : -ln] = msigma_value
 
         return None

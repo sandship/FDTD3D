@@ -18,7 +18,6 @@ def main():
     hfield_sub = emfield.Hfield(param)
 
     with open(r'./output/tl.dat', "a+") as f:
-        # do computation
         for _ in tqdm(range(5002)):
             efield.update_field(hfield)
             hfield.update_field(efield)
@@ -26,6 +25,7 @@ def main():
             efield_sub.update_field(hfield_sub)
             hfield_sub.update_field(efield_sub)
             
+            # for debug
             f.write("{},{},{},{},{},{},{}\n".format(_,
                 efield.Xaxis[50, 50, 50], efield_sub.Xaxis[50, 50, 50],
                 efield.Yaxis[50, 50, 50], efield_sub.Yaxis[50, 50, 50],
@@ -36,11 +36,6 @@ def main():
             if _ % 10 == 0:
                 efield.calc_norm()
                 efield_sub.calc_norm()
-
-                plt.figure()
-                sns.heatmap(efield.norm[:, 50, :], cmap="Reds")
-                plt.savefig('./output/map_{}.png'.format(_))
-                plt.close('all')
 
 
     return None

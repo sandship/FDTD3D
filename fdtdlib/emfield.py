@@ -1,5 +1,5 @@
 import numpy as np
-# import cupy as np
+import cupy as cp
 
 class Field(object):
     """[summary]
@@ -12,7 +12,6 @@ class Field(object):
     """
     def __init__(self, InitializedParameter):
         self.time = 0.0
-        self.step = 0
         self.param = InitializedParameter
 
         self.set_parameter = self.param.set_parameter
@@ -25,7 +24,7 @@ class Field(object):
         return None
 
     def init_field(self):
-        return np.zeros(
+        return cp.zeros(
             shape=(self.param.model_size["x"], self.param.model_size["y"], self.param.model_size["z"])
         )
 
@@ -33,7 +32,7 @@ class Field(object):
         return None
 
     def calc_norm(self):
-        self.norm = np.sqrt(
+        self.norm = cp.sqrt(
             self.Xaxis ** 2 +
             self.Yaxis ** 2 +
             self.Zaxis ** 2
@@ -58,24 +57,27 @@ class Efield(Field):
         super().__init__(InitializedParameter)
         return None
 
+    def _feed_efield(self):
+        self.Zaxis[32, 47, 47] = cp.sin(2.0 * np.pi * 3.0e9 * self.time + self.shift_phase)
+        return None
+
     def update_field(self, Hfield):
-        self.Zaxis[32, 47, 47] = np.sin(2.0 * 3.14159265 * 3.0e9 * self.time + self.shift_phase)
         self.time = Hfield.time + self.param.dt /2.0
-        self.step = Hfield.step + 1/2
+        self._feed_efield()
 
         self.Xaxis = self.param.ce * self.Xaxis + self.param.de * (
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=1)) - 
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=2))
+                        (Hfield.Zaxis - cp.roll(Hfield.Zaxis, shift=1, axis=1)) - 
+                        (Hfield.Yaxis - cp.roll(Hfield.Yaxis, shift=1, axis=2))
                     )
 
         self.Yaxis =  self.param.ce * self.Yaxis + self.param.de * (
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=2)) - 
-                        (Hfield.Zaxis - np.roll(Hfield.Zaxis, shift=1, axis=0))
+                        (Hfield.Xaxis - cp.roll(Hfield.Xaxis, shift=1, axis=2)) - 
+                        (Hfield.Zaxis - cp.roll(Hfield.Zaxis, shift=1, axis=0))
                     )
 
         self.Zaxis = self.param.ce * self.Zaxis + self.param.de * (
-                        (Hfield.Yaxis - np.roll(Hfield.Yaxis, shift=1, axis=0)) - 
-                        (Hfield.Xaxis - np.roll(Hfield.Xaxis, shift=1, axis=1))
+                        (Hfield.Yaxis - cp.roll(Hfield.Yaxis, shift=1, axis=0)) - 
+                        (Hfield.Xaxis - cp.roll(Hfield.Xaxis, shift=1, axis=1))
                     )
         return None
 
@@ -101,19 +103,20 @@ class Hfield(Field):
 
     def update_field(self, Efield):
         self.time = Efield.time + self.param.dt /2.0
+        Efield._feed_efield()
 
-        self.Xaxis += self.param.dh * (
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=1)) - 
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=2))
+        self.Xaxis = self.param.ch * self.Xaxis + self.param.dh * (
+                        (Efield.Zaxis - cp.roll(Efield.Zaxis, shift=-1, axis=1)) - 
+                        (Efield.Yaxis - cp.roll(Efield.Yaxis, shift=-1, axis=2))
                     )
 
-        self.Yaxis += self.param.dh * (
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=2)) - 
-                        (Efield.Zaxis - np.roll(Efield.Zaxis, shift=-1, axis=0))
+        self.Yaxis = self.param.ch * self.Yaxis + self.param.dh * (
+                        (Efield.Xaxis - cp.roll(Efield.Xaxis, shift=-1, axis=2)) - 
+                        (Efield.Zaxis - cp.roll(Efield.Zaxis, shift=-1, axis=0))
                     )
 
-        self.Zaxis += self.param.dh * (
-                        (Efield.Yaxis - np.roll(Efield.Yaxis, shift=-1, axis=0)) - 
-                        (Efield.Xaxis - np.roll(Efield.Xaxis, shift=-1, axis=1))
+        self.Zaxis = self.param.ch * self.Zaxis + self.param.dh * (
+                        (Efield.Yaxis - cp.roll(Efield.Yaxis, shift=-1, axis=0)) - 
+                        (Efield.Xaxis - cp.roll(Efield.Xaxis, shift=-1, axis=1))
                     )
         return None
