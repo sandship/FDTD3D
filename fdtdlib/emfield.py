@@ -10,10 +10,9 @@ class Field(object):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, InitializedParameter):
+    def __init__(self, setupParam):
         self.time = 0.0
-        self.param = InitializedParameter
-
+        self.param = setupParam
         self.set_parameter = self.param.set_parameter
         self.general_parameter = self.param.general_parameter
 
@@ -24,9 +23,8 @@ class Field(object):
         return None
 
     def init_field(self):
-        return cp.zeros(
-            shape=(self.param.model_size["x"], self.param.model_size["y"], self.param.model_size["z"])
-        )
+        self.shape = (self.param.model_size["x"], self.param.model_size["y"], self.param.model_size["z"])
+        return cp.zeros(shape=self.shape)
 
     def load_field(self):
         return None
@@ -52,9 +50,9 @@ class Efield(Field):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, InitializedParameter, shift_phase=0.0):
+    def __init__(self, setupParam, shift_phase=0.0):
         self.shift_phase = shift_phase
-        super().__init__(InitializedParameter)
+        super().__init__(setupParam)
         return None
 
     def _feed_efield(self):
@@ -96,9 +94,9 @@ class Hfield(Field):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, InitializedParameter, shift_phase=0.0):
+    def __init__(self, setupParam, shift_phase=0.0):
         self.shift_phase = shift_phase
-        super().__init__(InitializedParameter)
+        super().__init__(setupParam)
         return None
 
     def update_field(self, Efield):

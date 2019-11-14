@@ -2,7 +2,7 @@ from fdtdlib import myutility as myutil
 import numpy as np
 import cupy as cp
 
-class InitialzeSpaceParameter(object):
+class parameterSetup(object):
     """This class is nitializer for parameters used in FDTD.
     Instantiate this, and we can set the calculation spaces 
     for FDTD along with your CONFIG (`./configure/setting.json`) and MODELs.
@@ -10,24 +10,18 @@ class InitialzeSpaceParameter(object):
     Returns:
         [type] -- [description]
     """
-    def __init__(self, config_path=r"./configure/settings.json"):
+    def __init__(self, config_path):
         self.setting = myutil.load_config(config_path)
-        self.set_parameter = myutil.load_config(config_path)["parameter"]["set"]
-        self.general_parameter = myutil.load_config(config_path)["parameter"]["general"]
+        self.manual_param = myutil.load_config(config_path)["parameter"]["manual"]
+        self.general_param = myutil.load_config(config_path)["parameter"]["general"]
 
-        self.freq = self.set_parameter["freq"]
+        self.freq = self.manual_param["freq"]
 
-        self.dr = self.set_parameter["descrete"]
-        self.c = self.general_parameter["c"]
+        self.dr = self.manual_param["descrete"]
+        self.c = self.general_param["c"]
         self.dt = 0.99 * self.dr / (self.c * np.sqrt(3.0))
 
         self.model_id = self.load_model(self.setting["model"]["path"])
-
-        self.model_size = {
-            "x" : self.model_id.shape[0],
-            "y" : self.model_id.shape[1],
-            "z" : self.model_id.shape[2]
-        }
 
         self.calc_parameter(self.model_id)
 
@@ -44,12 +38,51 @@ class InitialzeSpaceParameter(object):
             np.ndarray -- numpy 3d-array, each elements indicates the tissue ID.
             Note: the tissue ID is bound with properties in `./asset/properties/*`, and the file path described in `setting.json`.
         """
+        def _expansion_num():
+            """this internal method CALC the total expansion num, from num of PML layers and space mergin.
+            
+            Returns:
+                dict -- expansion number for each axis.
+            """
+            total_mergin = {}
+            for k in self.manual_param["mergin"].keys():
+                total_mergin[k] = self.manual_param["mergin"][k] + self.manual_param["pml_thick"]
+
+            return total_mergin
+        
+        def expand_field(arr, expand={}):
+            """This method EXPANDs isometrically the 3d-array=(N, N, N) into 3d-array=(N+2*expand["x"], N+2*expand["y"], N+2*expand["z"]).
+            The center point of expanded array is shifted from (N/2, N/2, N/2) => (N/2 + expand["x"], N/2 + expand["y"], N/2 + expand["z"])
+
+            Arguments:
+                arr {np.ndarray} -- numpy 3d-array
+            
+            Keyword Arguments:
+                expand {dict} -- the expand Num for each axis "x", "y", "z" (default: empty)
+            
+            Returns:
+                np.ndarray -- expanded ndarray
+            """
+            rarr = cp.zeros((
+                arr.shape[0] + 2 * expand["x"], 
+                arr.shape[1] + 2 * expand["y"], 
+                arr.shape[2] + 2 * expand["z"]
+            ))
+            
+            rarr[
+                expand["x"] : -expand["x"], 
+                expand["y"] : -expand["y"], 
+                expand["z"] : -expand["z"]
+            ] = arr
+            
+            return rarr
+        
         with open(path_, "r") as fh:
-            lines = fh.readlines()
-        lines = [[int(element) for element in line.split()] for line in lines]
+            lines = [[int(element) for element in line.split()] for line in fh.readlines()]
 
         arr = self.transform_tidy_3darray(cp.array(lines), to_form="3d-array")
-        arr = self.expand_field(arr, expand=self.__expansion_num())
+        
+        arr = expand_field(arr, expand=_expansion_num())
 
         return arr
 
@@ -100,45 +133,6 @@ class InitialzeSpaceParameter(object):
             print("You must input valid value ('3d-array' or 'tidy') into the argument 'to_form'.")
             raise AttributeError
 
-    def expand_field(self, arr, expand={}):
-        """This method EXPANDs isometrically the 3d-array=(N, N, N) into 3d-array=(N+2*expand["x"], N+2*expand["y"], N+2*expand["z"]).
-        The center point of expanded array is shifted from (N/2, N/2, N/2) => (N/2 + expand["x"], N/2 + expand["y"], N/2 + expand["z"])
-
-        Arguments:
-            arr {np.ndarray} -- numpy 3d-array
-        
-        Keyword Arguments:
-            expand {dict} -- the expand Num for each axis "x", "y", "z" (default: empty)
-        
-        Returns:
-            np.ndarray -- expanded ndarray
-        """
-        rarr = cp.zeros((
-            arr.shape[0] + 2 * expand["x"], 
-            arr.shape[1] + 2 * expand["y"], 
-            arr.shape[2] + 2 * expand["z"]
-        ))
-        
-        rarr[
-            expand["x"] : -expand["x"], 
-            expand["y"] : -expand["y"], 
-            expand["z"] : -expand["z"]
-        ] = arr
-        
-        return rarr
-
-    def __expansion_num(self):
-        """this internal method CALC the total expansion num, from num of PML layers and space mergin.
-        
-        Returns:
-            dict -- expansion number for each axis.
-        """
-        total_mergin = {}
-        for k in self.set_parameter["mergin"].keys():
-            total_mergin[k] = self.set_parameter["mergin"][k] + self.set_parameter["pml_thick"]
-
-        return total_mergin
-    
     def calc_parameter(self, model_id_array):
         """this method CALC the parameter for FDTD update coefficient
         from the tissue's electromagnetic parameter.
@@ -149,6 +143,13 @@ class InitialzeSpaceParameter(object):
         Returns:
             some np.array, ce, de, dh.
         """
+
+        self.model_size = {
+            "x" : self.model_id.shape[0],
+            "y" : self.model_id.shape[1],
+            "z" : self.model_id.shape[2]
+        }
+
         self.set_tissue_param(model_id_array)
         
         self.set_pml()
@@ -194,12 +195,7 @@ class InitialzeSpaceParameter(object):
                 np.array -- 3d-array indicates electromagnetic parameter of the each point.
             """
             def _trans_tissue_param(x, key=""):
-                """this method seach the electromagnetic parameter by using x and key.
-                
-                Arguments:
-                    x {float or int} -- model-ID
-                    key {string} -- the kind of parameter ('name', 'epsr', 'mur', 'sigma', 'rho')
-                """
+                """this method seach the electromagnetic parameter by using x and key."""
                 return self.tissues[str(int(x))][key]
 
             arr = cp.asnumpy(arr)
@@ -215,21 +211,21 @@ class InitialzeSpaceParameter(object):
         self.msigma = cp.asarray(_trans_tissue_id_to_value(model_id_array, key="msigma"))
         self.rho =    cp.asarray(_trans_tissue_id_to_value(model_id_array, key="rho"))
 
-        self.mu *= self.general_parameter["mu0"]
-        self.eps *= self.general_parameter["eps0"]
+        self.mu *= self.general_param["mu0"]
+        self.eps *= self.general_param["eps0"]
 
         return None
 
     def set_pml(self):
         """This method sets conductivity, represents Berenger PML boundary.
         """
-        pmlN = self.set_parameter["pml_thick"]
-        __M = self.set_parameter["pml_dimension"]
-        __R = self.set_parameter["pml_reflection_coefficient"]
+        pmlN = self.manual_param["pml_thick"]
+        __M = self.manual_param["pml_dimension"]
+        __R = self.manual_param["pml_reflection_coefficient"]
 
         for ln in range(pmlN):
             sigma_value = ((pmlN - ln)/pmlN) ** __M * ((__M + 1) * (-np.log(__R))/(2 * pmlN * self.dr * 120 * np.pi))
-            msigma_value = self.general_parameter["mu0"]/self.general_parameter["eps0"] * sigma_value
+            msigma_value = self.general_param["mu0"]/self.general_param["eps0"] * sigma_value
 
             self.sigma[ln : ln + 1, :, :] = sigma_value
             self.sigma[:, ln : ln + 1, :] = sigma_value
